@@ -57,7 +57,7 @@ nameserver 8.8.4.4
 EOF
 
 # 9.5.3. Configuring the system hostname
-echo "lfs" > /etc/hostname
+echo "skynet" > /etc/hostname
 
 # 9.5.4. Customizing the /etc/hosts File
 cat > /etc/hosts << "EOF"
@@ -119,6 +119,7 @@ cat > /etc/profile << "EOF"
 # Begin /etc/profile
 
 export LANG=en_US.UTF-8
+export PS1="\u@\h:\w\$ "
 
 # End /etc/profile
 EOF
@@ -165,6 +166,12 @@ set bell-style none
 "\e[H": beginning-of-line
 "\e[F": end-of-line
 
+# custom mods by Arnau based on LFS video
+set visible-stats on
+set show-all-if-ambiguous on
+set completion-ignore-case on
+set print-completions-horizontally off
+
 # End /etc/inputrc
 EOF
 
@@ -201,6 +208,9 @@ cd /sources
 begin linux-5.19.2 tar.xz
 make mrproper
 make defconfig
+echo "----- DEFAULT KERNEL CONFIGURATION CREATED: continue to kernel compilation? (y / ctrl+c)"
+read confirmation
+echo $confirmation
 make
 make modules_install
 cp -iv arch/x86/boot/bzImage /boot/vmlinuz-5.19.2-lfs-11.2
@@ -222,7 +232,7 @@ install uhci_hcd /sbin/modprobe ehci_hcd ; /sbin/modprobe -i uhci_hcd ; true
 EOF
 
 # 10.4. Using GRUB to Set Up the Boot Process
-grub-install /dev/sdb
+grub-install /dev/sda
 cat > /boot/grub/grub.cfg << "EOF"
 # Begin /boot/grub/grub.cfg
 set default=0
@@ -232,7 +242,7 @@ insmod ext2
 set root=(hd0,1)
 
 menuentry "GNU/Linux, Linux 5.19.2-lfs-11.2" {
-        linux   /boot/vmlinuz-5.19.2-lfs-11.2 root=/dev/sda1 ro
+        linux   /boot/vmlinuz-5.19.2-lfs-11.2 root=/dev/sda1 ro net.ifnames=0
 }
 EOF
 
